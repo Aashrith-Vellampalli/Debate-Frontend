@@ -1,26 +1,106 @@
-@import "tailwindcss";
+@import "tailwindcss/index.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0b0b15; /* deep surface */
+  --foreground: #f4f4f5; /* zinc-100 */
+  --muted: #a1a1aa; /* zinc-400 */
+  --card: #111124; /* surface-100 */
+  --ring: #a855f7; /* brand-500 */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Light mode fallback (if class not applied) */
+html:not(.dark) {
+  --background: #0b0b15;
+  --foreground: #f4f4f5;
+  --muted: #a1a1aa;
+  --card: #111124;
+  --ring: #a855f7;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans,
+    Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
 }
+
+/* inputs/buttons defaults - avoid applying focus ring to generic blocks/links */
+button:focus,
+button:focus-visible,
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+[role="button"]:focus,
+[role="button"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--ring) 55%, transparent);
+}
+
+/* small gradient animation used for summary title */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-gradient {
+  /* Pixel-perfect match to the progress bar: left blue gradient and right red gradient layered */
+  background-image: linear-gradient(90deg,#3b82f6,#60a5fa), linear-gradient(90deg,#ef4444,#f97316);
+  background-size: 200% 200%, 200% 200%;
+  background-position: 0% 50%, 100% 50%;
+  animation: gradient-shift 6s ease infinite;
+}
+
+/* Static gradient matching the progress bar (no animation) */
+.static-gradient {
+  /* Use a single gradient with a dark-slate center to avoid purple blending while not being pure black */
+  background: linear-gradient(90deg, #3b82f6 0%, #0f172a 50%, #ef4444 100%);
+}
+
+.animate-fade-in {
+  animation: fade-in 240ms ease forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Floating orb animations */
+@keyframes float {
+  0% { transform: translateY(0) translateX(0) scale(1); }
+  50% { transform: translateY(-12px) translateX(6px) scale(1.03); }
+  100% { transform: translateY(0) translateX(0) scale(1); }
+}
+
+@keyframes float-slow {
+  0% { transform: translateY(0) translateX(0) scale(1); }
+  50% { transform: translateY(-18px) translateX(-8px) scale(1.04); }
+  100% { transform: translateY(0) translateX(0) scale(1); }
+}
+
+@keyframes float-slower {
+  0% { transform: translateY(0) translateX(0) scale(1); }
+  50% { transform: translateY(-24px) translateX(10px) scale(1.05); }
+  100% { transform: translateY(0) translateX(0) scale(1); }
+}
+
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
+.animate-float-slower { animation: float-slower 10s ease-in-out infinite; }
+
+/* Subtle ether overlay vignette to add depth behind content */
+.ether-vignette::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(80% 60% at 50% 20%, rgba(168, 85, 247, 0.12) 0%, rgba(0,0,0,0) 60%),
+              radial-gradient(60% 50% at 80% 70%, rgba(236, 72, 153, 0.10) 0%, rgba(0,0,0,0) 60%),
+              radial-gradient(50% 40% at 20% 80%, rgba(59, 130, 246, 0.10) 0%, rgba(0,0,0,0) 60%);
+  z-index: 0;
+}
+
