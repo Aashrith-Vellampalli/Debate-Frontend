@@ -1,8 +1,6 @@
 "use client";
 import React, { useRef, useEffect, useState } from "react";
 
-// Lightweight canvas-based 'liquid' background with metaball-like blobs.
-// This intentionally keeps dependencies minimal and uses 2D canvas.
 export default function LiquidEther({
   colors = ["#5227FF", "#FF9FFC", "#B19EEF"],
   mouseForce = 20,
@@ -23,19 +21,15 @@ export default function LiquidEther({
 }) {
   const ref = useRef(null);
   const rafRef = useRef();
-  const [enabled, setEnabled] = useState(false);
+  const [shouldRender, setShouldRender] = useState(true);
 
   useEffect(() => {
-    // disable on small viewports (mobile) and respect prefers-reduced-motion
     if (typeof window === "undefined") return;
-    const mq = window.matchMedia("(min-width: 768px)");
     const prm = window.matchMedia("(prefers-reduced-motion: reduce)");
     function update() {
-      const shouldEnable = mq.matches && !prm.matches;
-      setEnabled(shouldEnable);
+      setShouldRender(!prm.matches);
     }
     update();
-    mq.addEventListener?.("change", update);
     prm.addEventListener?.("change", update);
 
     const canvas = ref.current;
@@ -46,7 +40,6 @@ export default function LiquidEther({
     let h = 0;
     let scale = Math.max(0.25, Math.min(1, resolution));
 
-    // create a few moving 'blobs'
     const blobs = [];
     const blobCount = Math.max(5, colors.length + 2);
     for (let i = 0; i < blobCount; i++) {
@@ -99,18 +92,14 @@ export default function LiquidEther({
 
     function draw() {
       t += autoSpeed * 0.01;
-      // clear with transparent background (let page background show through)
       ctx.clearRect(0, 0, w, h);
 
-      // update and render blobs
       for (let i = 0; i < blobs.length; i++) {
         const b = blobs[i];
-        // gentle motion + phase oscillation
         b.phase += 0.01 + 0.02 * Math.sin(t + i);
         b.x += b.vx + 0.0006 * Math.sin(t + i * 0.7);
         b.y += b.vy + 0.0006 * Math.cos(t + i * 0.9);
 
-        // auto demo attractor
         if (autoDemo && !pointer.active) {
           const ax = 0.5 + 0.35 * Math.sin(t * (0.2 + i * 0.05) + i);
           const ay = 0.5 + 0.35 * Math.cos(t * (0.14 + i * 0.03) + i * 1.3);
@@ -118,7 +107,6 @@ export default function LiquidEther({
           b.y += (ay - b.y) * 0.003 * autoIntensity;
         }
 
-        // mouse interaction
         if (pointer.active && pointer.x != null) {
           const px = pointer.x / (canvas.getBoundingClientRect().width) ;
           const py = pointer.y / (canvas.getBoundingClientRect().height) ;
@@ -130,26 +118,22 @@ export default function LiquidEther({
           b.y += dy * 0.06 * f;
         }
 
-        // bounce edges
         if (isBounce) {
           if (b.x < 0) { b.x = 0; b.vx *= -1; }
           if (b.x > 1) { b.x = 1; b.vx *= -1; }
           if (b.y < 0) { b.y = 0; b.vy *= -1; }
           if (b.y > 1) { b.y = 1; b.vy *= -1; }
         } else {
-          // wrap
           if (b.x < -0.2) b.x = 1.2;
           if (b.x > 1.2) b.x = -0.2;
           if (b.y < -0.2) b.y = 1.2;
           if (b.y > 1.2) b.y = -0.2;
         }
 
-        // render blob as a radial gradient
         const cx = b.x * w;
         const cy = b.y * h;
         const radius = Math.max(20, b.r * Math.min(w, h) * (cursorSize / 100));
         const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-        // more visible core with higher opacity
         grad.addColorStop(0, hexToRgba(b.color, 0.4));
         grad.addColorStop(0.4, hexToRgba(b.color, 0.25));
         grad.addColorStop(0.7, hexToRgba(b.color, 0.1));
@@ -161,12 +145,9 @@ export default function LiquidEther({
         ctx.fill();
       }
 
-      // slight blur effect using globalAlpha composite passes for softening
       ctx.globalCompositeOperation = "source-over";
 
-      // diagnostic overlay for testing
       if (testMode) {
-        // visible grid and label so the canvas presence is obvious
         ctx.save();
         ctx.globalCompositeOperation = 'source-over';
         ctx.strokeStyle = 'rgba(255,255,255,0.25)';
@@ -201,12 +182,11 @@ export default function LiquidEther({
 
     return () => {
       cleanup();
-      mq.removeEventListener?.("change", update);
       prm.removeEventListener?.("change", update);
     };
   }, [colors, mouseForce, cursorSize, isViscous, viscous, resolution, isBounce, autoDemo, autoSpeed, autoIntensity]);
 
-  if (!enabled) return null;
+  if (!shouldRender) return null;
 
   return (
     <canvas
@@ -220,12 +200,13 @@ export default function LiquidEther({
         zIndex: 0,
         pointerEvents: "none",
         display: "block",
+        opacity: 1,
+        transition: "opacity 0.3s ease-in-out",
       }}
     />
   );
 }
 
-// tiny helper to convert hex to rgba with alpha
 function hexToRgba(hex, alpha = 1) {
   const h = hex.replace('#', '');
   const bigint = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);

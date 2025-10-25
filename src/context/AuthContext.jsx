@@ -6,7 +6,6 @@ import api from '../api/axios';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  // initialize on client after hydration to avoid SSR/CSR HTML mismatch
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [hydrated, setHydrated] = useState(false);
@@ -16,13 +15,11 @@ export function AuthProvider({ children }) {
       const raw = localStorage.getItem('user');
       if (raw) setUser(JSON.parse(raw));
     } catch (e) {
-      // ignore
     }
     try {
       const t = localStorage.getItem('token');
       if (t) setToken(t);
     } catch (e) {
-      // ignore
     }
     setHydrated(true);
   }, []);
@@ -32,18 +29,14 @@ export function AuthProvider({ children }) {
     try {
       if (user) localStorage.setItem('user', JSON.stringify(user));
       else localStorage.removeItem('user');
-    } catch (e) {
-      console.log('AuthContext: failed to write user to localStorage', e);
-    }
+    } catch (e) {    }
   }, [user]);
 
   useEffect(() => {
     try {
       if (token) localStorage.setItem('token', token);
       else localStorage.removeItem('token');
-    } catch (e) {
-      console.log('AuthContext: failed to write token to localStorage', e);
-    }
+    } catch (e) {    }
   }, [token]);
 
   function login({ user: userObj, token: newToken }) {
@@ -54,10 +47,7 @@ export function AuthProvider({ children }) {
   async function logout() {
     try {
       await api.post('/api/auth/logout');
-    } catch (e) {
-      
-      console.log('AuthContext.logout: server logout failed', e?.response?.data || e?.message || e);
-    }
+    } catch (e) {    }
 
     setUser(null);
     setToken(null);

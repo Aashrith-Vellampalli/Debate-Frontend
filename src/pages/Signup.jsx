@@ -14,7 +14,6 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
     try {
-      // mock signup
       router.push('/');
     } catch (e) {
     } finally {

@@ -15,7 +15,6 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // fetch debates from API on mount
   useEffect(() => {
     let mounted = true;
     async function load() {
@@ -25,11 +24,9 @@ export default function Home() {
         const res = await api.get('/api/debates');
         if (!mounted) return;
         if (Array.isArray(res.data)) {
-          // normalize server response fields to frontend shape
           const normalized = res.data.map((d) => ({
             id: d._id || d.id,
             topic: d.title || d.topic || '',
-            // prefer createdAt returned by the API; fall back to date
             date: d.createdAt || d.date || '',
             tags: d.tags || [],
             percentFor: d.percentFor,
@@ -37,9 +34,7 @@ export default function Home() {
           }));
           setDebates(normalized);
         } else setDebates([]);
-      } catch (err) {
-        console.error('Failed to load debates', err);
-        if (mounted) setError('Failed to load debates');
+      } catch (err) {        if (mounted) setError('Failed to load debates');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -53,19 +48,15 @@ export default function Home() {
       await api.delete(`/api/debates/${id}`);
       setDebates((prev) => prev.filter((d) => d.id !== id));
       toast.success('Debate deleted');
-    } catch (err) {
-      console.error('delete failed', err);
-      toast.error('Failed to delete debate');
+    } catch (err) {      toast.error('Failed to delete debate');
     }
   }
 
-  // debounce searchInput -> query
   useEffect(() => {
     const t = setTimeout(() => setQuery(searchInput), 300);
     return () => clearTimeout(t);
   }, [searchInput]);
 
-  // tag suggestions come from all available tags
   const tagSuggestions = useMemo(() => {
     const pool = new Set();
     (debates || []).forEach((d) => (d.tags || []).forEach((t) => pool.add(t)));
@@ -76,7 +67,6 @@ export default function Home() {
     const q = (query || '').trim();
   const items = [...(debates || [])];
 
-    // parse advanced query tokens (quoted phrases or space-separated)
     const tokens = [];
     const re = /("[^"]+"|\S+)/g; // quoted or non-space
     let m;
@@ -109,8 +99,6 @@ export default function Home() {
       includeTerms.push(tkn.toLowerCase());
     });
 
-    // Merge any explicit Filters panel selections (panel overrides/adds to query)
-    // tags from panel are additive with tag: tokens
     const mergedTagFilters = [...(tagFilters || []), ...((filters && filters.tags) || []).map((t) => t.toLowerCase())];
     if (filters && filters.before) beforeDate = filters.before;
     if (filters && filters.after) afterDate = filters.after;
@@ -121,23 +109,19 @@ export default function Home() {
       const tags = (d.tags || []).map((t) => t.toLowerCase());
       const date = d.date || '';
 
-      // include terms: all must be present in topic or tags
       const incOk = includeTerms.every((term) => {
         return topic.includes(term) || tags.some((tg) => tg.includes(term));
       });
       if (!incOk) return false;
 
-      // exclude terms: none can be present
       const excOk = excludeTerms.every((term) => {
         return !topic.includes(term) && !tags.some((tg) => tg.includes(term));
       });
       if (!excOk) return false;
 
-  // tag filters (all must be present) - combined with panel tags
   const tagOk = mergedTagFilters.every((tf) => tags.includes(tf));
       if (!tagOk) return false;
 
-      // date filters (YYYY-MM-DD)
       if (dateEq && date !== dateEq) return false;
       try {
         if (beforeDate && date) { if (new Date(date) >= new Date(beforeDate)) return false; }
@@ -147,7 +131,6 @@ export default function Home() {
       return true;
     });
 
-  // simple sort support
   if (sort === 'date_asc') matches.sort((a,b)=> new Date(a.date) - new Date(b.date));
   if (sort === 'date_desc') matches.sort((a,b)=> new Date(b.date) - new Date(a.date));
 
@@ -160,11 +143,11 @@ export default function Home() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-fuchsia-300 via-violet-300 to-pink-300 bg-clip-text text-transparent drop-shadow mb-4">
-            Engage in Meaningful Debates
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-fuchsia-300 via-violet-300 to-pink-300 bg-clip-text text-transparent drop-shadow mb-4 inline-block leading-[1.15] pb-1">
+            ArguMate
           </h1>
           <p className="text-lg text-zinc-400 max-w-2xl mx-auto">
-            Explore diverse perspectives, share your views, and learn from thoughtful discussions
+            Engage in meaningful debates, share your views, and learn from thoughtful discussions
           </p>
         </div>
 

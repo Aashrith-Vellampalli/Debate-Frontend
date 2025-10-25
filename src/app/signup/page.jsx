@@ -26,7 +26,6 @@ export default function SignupPage() {
       setLoading(true);
       setSubmitPayload({ name, email, password });
     } catch (err) {
-      console.error(err);
       toast.error('Something went wrong');
       setLoading(false);
     }
@@ -38,7 +37,8 @@ export default function SignupPage() {
 
     async function doSignup() {
       try {
-        const res = await axios.post('http://localhost:5001/api/auth/signup', {
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001';
+        const res = await axios.post(`${baseUrl}/api/auth/signup`, {
           username: submitPayload.name,
           email: submitPayload.email,
           password: submitPayload.password,
@@ -50,12 +50,6 @@ export default function SignupPage() {
         toast.success('Account created');
         router.push('/');
       } catch (err) {
-        // log error details for debugging (server response, message)
-        console.log('Signup error:', {
-          message: err?.message,
-          status: err?.response?.status,
-          data: err?.response?.data,
-        });
         const msg = err?.response?.data?.message || 'Signup failed';
         toast.error(msg);
       } finally {

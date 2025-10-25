@@ -5,12 +5,10 @@ import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
 
 export default function DebateCard({ id, topic, date, tags = [], isUser = false, onDelete }) {
-  // derive a route id for built-in debates by slugifying the topic
   const routeId = id || encodeURIComponent((topic || '').toLowerCase().replace(/\s+/g, '-'));
 
   const { user } = useAuth();
 
-  // Format date in a more readable way
   const formatDate = (dateString) => {
     if (!dateString) return 'No date';
     try {
@@ -19,12 +17,10 @@ export default function DebateCard({ id, topic, date, tags = [], isUser = false,
       const diffTime = Math.abs(now - d);
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
       
-      // If within last 7 days, show relative time
       if (diffDays === 0) return 'Today';
       if (diffDays === 1) return 'Yesterday';
       if (diffDays < 7) return `${diffDays} days ago`;
       
-      // Otherwise show formatted date
       return d.toLocaleDateString('en-US', { 
         month: 'short', 
         day: 'numeric', 
@@ -37,11 +33,9 @@ export default function DebateCard({ id, topic, date, tags = [], isUser = false,
 
   return (
     <Link href={`/debate/${routeId}`} className="block group outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0" style={{ WebkitTapHighlightColor: 'transparent' }}>
-      <article className="bg-surface-50/70 backdrop-blur-xl rounded-2xl shadow-lg hover:shadow-2xl transform transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] active:scale-[1.005] p-6 md:p-7 flex flex-col justify-between min-h-[220px] relative overflow-hidden outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 active:ring-0">
-        {/* Gradient accent on hover */}
+      <article className="bg-surface-50/70 backdrop-blur-xl rounded-2xl shadow-lg hover:shadow-2xl transform transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] active:scale-[1.005] p-6 md:p-7 flex flex-col justify-between min-h-[220px] relative overflow-hidden outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 active:ring-0 border border-purple-500/20 hover:border-purple-400/40">
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-brand-600/10 via-pink-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-30 transition-opacity duration-300 pointer-events-none" />
         
-        {/* Decorative corner element */}
         <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-brand-600/10 to-transparent rounded-bl-full opacity-40 pointer-events-none" />
         
         <div className="relative z-10">

@@ -8,9 +8,7 @@ const api = axios.create({
   withCredentials: true,
 });
 
-if (!process.env.NEXT_PUBLIC_API_BASE_URL) {
-  console.info(`[api] NEXT_PUBLIC_API_BASE_URL not set — using ${DEFAULT_BACKEND}`);
-}
+if (!process.env.NEXT_PUBLIC_API_BASE_URL) {}
 
 export default api;
 

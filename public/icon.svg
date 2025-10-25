@@ -1,0 +1,43 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="128" fill="url(#grad1)"/>
+  
+  <!-- Gradient Definition -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Speech Bubble Left (FOR) -->
+  <path d="M120 180 C120 160, 140 140, 160 140 L240 140 C260 140, 280 160, 280 180 L280 240 C280 260, 260 280, 240 280 L180 280 L160 310 L160 280 C140 280, 120 260, 120 240 Z" 
+        fill="#34d399" 
+        stroke="#10b981" 
+        stroke-width="4"/>
+  
+  <!-- Speech Bubble Right (AGAINST) -->
+  <path d="M392 180 C392 160, 372 140, 352 140 L272 140 C252 140, 232 160, 232 180 L232 240 C232 260, 252 280, 272 280 L332 280 L352 310 L352 280 C372 280, 392 260, 392 240 Z" 
+        fill="#f87171" 
+        stroke="#ef4444" 
+        stroke-width="4"/>
+  
+  <!-- VS Symbol in center -->
+  <circle cx="256" cy="210" r="45" fill="#1f2937" stroke="#f59e0b" stroke-width="4"/>
+  <text x="256" y="230" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#f59e0b" text-anchor="middle">VS</text>
+  
+  <!-- Debate lines inside bubbles -->
+  <line x1="145" y1="165" x2="255" y2="165" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+  <line x1="145" y1="190" x2="235" y2="190" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+  <line x1="145" y1="215" x2="245" y2="215" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+  
+  <line x1="257" y1="165" x2="367" y2="165" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+  <line x1="277" y1="190" x2="367" y2="190" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+  <line x1="267" y1="215" x2="367" y2="215" stroke="#ef4444" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Trophy at bottom -->
+  <path d="M256 340 L230 380 L282 380 Z" fill="#fbbf24" stroke="#f59e0b" stroke-width="3"/>
+  <rect x="240" y="380" width="32" height="20" rx="4" fill="#fbbf24" stroke="#f59e0b" stroke-width="3"/>
+  <rect x="220" y="400" width="72" height="8" rx="4" fill="#fbbf24"/>
+  <ellipse cx="256" cy="325" rx="30" ry="20" fill="#fbbf24" stroke="#f59e0b" stroke-width="3"/>
+</svg>

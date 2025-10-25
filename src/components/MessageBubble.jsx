@@ -2,13 +2,7 @@
 
 import React from 'react';
 
-// MessageBubble is resilient to different message shapes returned by the backend.
-// Supported shapes:
-//  - { user, time, text }
-//  - { username, message }
-//  - { username, message, createdAt }
 export default function MessageBubble({ user, time, text, msg, side = 'for' }) {
-  // If caller passed a message object via `msg`, prefer its fields.
   const source = msg || {};
 
   const author =

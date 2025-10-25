@@ -14,7 +14,6 @@ export default function DebateThread({ id, title = 'Debate' }) {
   const containerRef = useRef();
   const { user: currentUser, hydrated } = useAuth();
 
-  // load messages from API (DB is authoritative)
   useEffect(() => {
     let mounted = true;
     if (!id) return undefined;
@@ -25,17 +24,14 @@ export default function DebateThread({ id, title = 'Debate' }) {
         if (!mounted) return;
         const data = res.data || {};
 
-        // normalize various possible shapes
         let f = [];
         let a = [];
-        // backend uses messagesFor / messagesAgainst
         if (Array.isArray(data.messagesFor)) {
           f = data.messagesFor;
         }
         if (Array.isArray(data.messagesAgainst)) {
           a = data.messagesAgainst;
         }
-        // legacy / alternate shape: messages with side prop
         if (!f.length && !a.length && Array.isArray(data.messages)) {
           data.messages.forEach((m) => {
             if (m.side === 'for' || m.side === 'For') f.push(m);
@@ -43,7 +39,6 @@ export default function DebateThread({ id, title = 'Debate' }) {
           });
         }
 
-        // normalize messages so UI can rely on consistent fields
         const normalize = (m) => ({
           ...m,
           user:
@@ -55,14 +50,11 @@ export default function DebateThread({ id, title = 'Debate' }) {
         setForMessages(f.map(normalize));
         setAgainstMessages(a.map(normalize));
       } catch (err) {
-        // ignore load errors silently
       }
     }
 
-    // initial load
     load();
 
-    // poll every 10s
     const interval = setInterval(() => {
       load();
     }, 10_000);
@@ -73,22 +65,17 @@ export default function DebateThread({ id, title = 'Debate' }) {
     };
   }, [id]);
 
-  // compute simple percentages
   const total = forMessages.length + againstMessages.length || 1;
   const forPct = Math.round((forMessages.length / total) * 100);
   const againstPct = 100 - forPct;
 
   function handleSend({ text, side, time }) {
-  // only include username after auth context has hydrated on client to avoid
-  // server/client markup mismatch during hydration
   const username = hydrated ? (currentUser?.username || currentUser?.name || '') : '';
   const msg = { user: username, time: new Date().toISOString(), text };
 
-    // capture previous state so we can revert on failure
     const prevFor = forMessages;
     const prevAgainst = againstMessages;
 
-    // optimistic UI update
     if (side === 'for') {
       setForMessages((s) => [...s, msg]);
       sendMessage(id, 'For', text)
@@ -96,7 +83,6 @@ export default function DebateThread({ id, title = 'Debate' }) {
           if (serverMsg) toast.success(serverMsg);
         })
         .catch((err) => {
-          // revert optimistic update
           setForMessages(prevFor);
           const serverMsg = err?.response?.data?.message || err?.message || 'Failed to save message to server';
           const status = err?.response?.status;
@@ -127,7 +113,6 @@ export default function DebateThread({ id, title = 'Debate' }) {
     }
   }
 
-  // scroll to bottom when new messages arrive
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;

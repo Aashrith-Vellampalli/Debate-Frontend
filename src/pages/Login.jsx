@@ -13,7 +13,6 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      // mock login
       router.push('/');
     } catch (e) {
     } finally {

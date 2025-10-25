@@ -24,9 +24,7 @@ export default function LoginPage() {
       }
       setLoading(true);
       setSubmitPayload({ email, password });
-    } catch (err) {
-      console.error(err);
-      toast.error('Something went wrong');
+    } catch (err) {      toast.error('Something went wrong');
       setLoading(false);
     }
   }
@@ -47,13 +45,7 @@ export default function LoginPage() {
         }
         toast.success('Signed in');
         router.push('/');
-      } catch (err) {
-        console.log('Login error:', {
-          message: err?.message,
-          status: err?.response?.status,
-          data: err?.response?.data,
-        });
-        const msg = err?.response?.data?.message || 'Login failed';
+      } catch (err) {        const msg = err?.response?.data?.message || 'Login failed';
         toast.error(msg);
       } finally {
         if (!canceled) setLoading(false);

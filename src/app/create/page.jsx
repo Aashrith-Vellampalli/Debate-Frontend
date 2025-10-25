@@ -44,9 +44,7 @@ export default function CreateDebate() {
       await api.post('/api/debates', payload);
       toast.success('Debate created');
       router.push('/');
-    } catch (err) {
-      console.error('create failed', err);
-      toast.error('Failed to create debate');
+    } catch (err) {      toast.error('Failed to create debate');
     }
   }
 

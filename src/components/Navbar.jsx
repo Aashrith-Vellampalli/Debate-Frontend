@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 
@@ -16,6 +17,8 @@ export default function Navbar({
   const [open, setOpen] = useState(false);
   const [localFilters, setLocalFilters] = useState(filters || { tags: [], before: '', after: '', sort: '' });
   const panelRef = useRef();
+  const triggerRef = useRef();
+  const [panelPos, setPanelPos] = useState({ top: 0, left: 0 });
 
   useEffect(() => setLocalFilters(filters || { tags: [], before: '', after: '', sort: '' }), [filters]);
 
@@ -25,6 +28,37 @@ export default function Navbar({
     }
     if (open) document.addEventListener('mousedown', onDoc);
     return () => document.removeEventListener('mousedown', onDoc);
+  }, [open]);
+
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    if (open) document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
+
+  useEffect(() => {
+    function updatePos() {
+      const el = triggerRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const panelWidth = 320;
+      const gap = 12;
+      const maxLeft = window.innerWidth - 16 - panelWidth;
+      const left = Math.min(maxLeft, Math.max(16, rect.right - panelWidth));
+      const top = Math.min(window.innerHeight - 16 - 400, rect.bottom + gap);
+      setPanelPos({ top, left });
+    }
+    if (open) {
+      updatePos();
+      window.addEventListener('resize', updatePos);
+      window.addEventListener('scroll', updatePos, true);
+      return () => {
+        window.removeEventListener('resize', updatePos);
+        window.removeEventListener('scroll', updatePos, true);
+      };
+    }
   }, [open]);
 
   function handleKeyDown(e) {
@@ -51,17 +85,17 @@ export default function Navbar({
   return (
     <header className="w-full bg-gradient-to-r from-surface-50/90 via-brand-900/20 to-surface-50/90 backdrop-blur-xl border-b border-brand-800/40 shadow-glow sticky top-0 z-50">
       <nav className="max-w-6xl mx-auto px-4 py-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+  <div className="flex flex-col md:flex-row items-center md:justify-between gap-6">
           {/* Left: Title */}
           <div className="flex items-center justify-center md:justify-start">
             <a href="/" className="text-2xl font-extrabold bg-gradient-to-r from-fuchsia-300 via-violet-300 to-pink-300 bg-clip-text text-transparent drop-shadow hover:scale-105 transition-transform">
-              Debate
+              ArguMate
             </a>
           </div>
 
-          {/* Middle: Search (centered on desktop, full width on mobile) */}
-          <div className="flex justify-center">
-            <div className="w-full max-w-xl relative">
+          {/* Middle: Search (expand on desktop, full width on mobile) */}
+          <div className="flex justify-center md:flex-1">
+            <div className="w-full max-w-2xl relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
               </div>
@@ -78,7 +112,7 @@ export default function Navbar({
           {/* Right: Actions */}
           <div className="flex items-center justify-center md:justify-end gap-3">
             {/* Filters popover */}
-            <div className="relative">
+            <div className="relative" ref={triggerRef}>
               <button
                 onClick={() => setOpen((s) => !s)}
                 className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold bg-white/10 backdrop-blur-sm text-zinc-200 hover:bg-white/20 hover:border-brand-500/40 hover:shadow-md transition-all"
@@ -91,10 +125,14 @@ export default function Navbar({
                   <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-gradient-to-r from-brand-500 to-pink-500 text-white text-xs font-bold shadow-sm">{(localFilters.tags?.length || 0) + (localFilters.before ? 1 : 0) + (localFilters.after ? 1 : 0) + (localFilters.sort ? 1 : 0)}</span>
                 )}
               </button>
-
-              {open && (
-                <div ref={panelRef} className="absolute right-0 mt-3 w-80 bg-surface-100/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-brand-800/30 p-5 z-40">
-                  <div className="space-y-3">
+              {open && createPortal(
+                (
+                  <div
+                    ref={panelRef}
+                    className="fixed w-80 bg-[black] rounded-2xl shadow-2xl border border-brand-800/30 p-5 z-[1001] animate-fade-in"
+                    style={{ top: panelPos.top, left: panelPos.left }}
+                  >
+                    <div className="space-y-3">
                     <div>
                       <label className="block text-xs font-medium text-zinc-300">Tags</label>
                       <div className="mt-2 flex gap-2 flex-wrap">
@@ -120,7 +158,7 @@ export default function Navbar({
                             e.target.value = '';
                           }
                         }}
-                        className="mt-2 w-full rounded-md border border-white/10 bg-white/5 text-zinc-100 placeholder:text-zinc-500 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-500/60"
+                        className="mt-2 w-full rounded-md border border-white/10 bg-surface-200 text-zinc-100 placeholder:text-zinc-500 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-500/60"
                         placeholder="add tag and press Enter"
                       />
 
@@ -148,7 +186,7 @@ export default function Navbar({
                         type="date"
                         value={localFilters.before || ''}
                         onChange={(e) => setLocalFilters((s) => ({ ...s, before: e.target.value }))}
-                        className="mt-1 w-full rounded-md border border-white/10 bg-white/5 text-zinc-100 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-500/60"
+                        className="mt-1 w-full rounded-md border border-white/10 bg-surface-200 text-zinc-100 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-500/60"
                       />
                     </div>
 
@@ -158,7 +196,7 @@ export default function Navbar({
                         type="date"
                         value={localFilters.after || ''}
                         onChange={(e) => setLocalFilters((s) => ({ ...s, after: e.target.value }))}
-                        className="mt-1 w-full rounded-md border border-white/10 bg-white/5 text-zinc-100 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-500/60"
+                        className="mt-1 w-full rounded-md border border-white/10 bg-surface-200 text-zinc-100 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-500/60"
                       />
                     </div>
 
@@ -167,7 +205,7 @@ export default function Navbar({
                       <select
                         value={localFilters.sort || ''}
                         onChange={(e) => setLocalFilters((s) => ({ ...s, sort: e.target.value }))}
-                        className="mt-1 w-full rounded-md border border-white/10 bg-white/5 text-zinc-100 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-500/60"
+                        className="mt-1 w-full rounded-md border border-white/10 bg-surface-200 text-zinc-100 px-2 py-1 text-sm focus:ring-2 focus:ring-brand-500/60"
                       >
                         <option value="">Relevance</option>
                         <option value="date_desc">Date: newest</option>
@@ -179,10 +217,24 @@ export default function Navbar({
                       <button onClick={handleClear} className="text-sm font-semibold text-zinc-400 hover:text-zinc-200 px-3 py-2 rounded-lg hover:bg-white/10 transition-colors">Clear</button>
                       <button onClick={handleApply} className="rounded-full bg-gradient-to-r from-brand-500 to-pink-500 text-white px-5 py-2 text-sm font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all">Apply</button>
                     </div>
+                    </div>
                   </div>
-                </div>
+                ),
+                document.body
               )}
             </div>
+
+            {/* Backdrop overlay when filters are open (portal to body to cover entire viewport) */}
+            {open && createPortal(
+              (
+                <div
+                  className="fixed inset-0 bg-surface z-[1000]"
+                  onClick={() => setOpen(false)}
+                  aria-hidden="true"
+                />
+              ),
+              document.body
+            )}
 
             {/* 1v1 quick action */}
             <a href="/1v1" className="text-sm font-bold text-white bg-gradient-to-r from-brand-500 to-pink-500 px-4 py-2 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all">1v1</a>

@@ -7,13 +7,11 @@ export default function AddDebateCard() {
   return (
     <Link
       href="/create"
-      className="group w-full text-left bg-surface-50/70 backdrop-blur-xl rounded-2xl border-2 border-dashed border-white/10 hover:border-fuchsia-400/60 shadow-lg hover:shadow-2xl transform transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] p-8 flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden"
+      className="group w-full text-left bg-surface-50/70 backdrop-blur-xl rounded-2xl border-2 border-dashed border-purple-500/30 hover:border-fuchsia-400/60 shadow-lg hover:shadow-2xl transform transition-all duration-300 hover:-translate-y-2 hover:scale-[1.02] p-8 flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden"
       aria-label="Start a new debate"
     >
-      {/* Animated gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-fuchsia-500/15 via-violet-500/12 to-pink-500/15 opacity-0 group-hover:opacity-70 transition-opacity duration-300" />
       
-      {/* Decorative sparkle elements */}
       <div className="absolute top-4 right-4 w-2 h-2 bg-fuchsia-300 rounded-full animate-pulse" />
       <div className="absolute bottom-6 left-6 w-1.5 h-1.5 bg-pink-400 rounded-full animate-pulse delay-75" />
       
