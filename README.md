@@ -35,3 +35,6 @@ NODE_ENV=production
    Open http://localhost:3000
 5. Build for production:
    npm run build
+
+## deployed link
+-https://debate-frontend-eosin.vercel.app
